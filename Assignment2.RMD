@@ -5,7 +5,35 @@ date: "February 17, 2017"
 output: html_document
 ---
 
-
+```{r echo=FALSE}
+exp.module <- function(M, N , d){
+# This function calculates the value of (M^d) mod (N). The function is specifically
+# Designed in order to overcome the difficulty that M^d could be huge and it might 
+# be computationally infeasible to compute the module we want.
+  
+  # The first element of chain_mod is (M^1) mod (N)  
+  chain_mod <- c(M%%N)
+  new <- c()
+  k <- 2
+  
+  while (1) {
+    new <- (chain_mod[k-1] * M) %% N
+    if (new != chain_mod[1]) {
+      chain_mod[k] <- new
+      k <- k+1
+    } else {
+      break
+    }
+  }
+  
+  chain_length <- length(chain_mod)
+  
+  ind <- ((d-1) %% chain_length) + 1
+  
+  c <- chain_mod[ind]
+  return(c)
+}
+```
 ### Part 1: Create Keys
 
 $$p = 7, \quad q = 23, \quad e = 13$$
@@ -25,6 +53,8 @@ Choose $e$ (already set to 13) as a relative prime number to:
 $$(p-1)*(q-1) = 132$$
 
 The public key is composed of $N$ and $e$, so it is 16113.
+
+
 
 #### b) Creating the Private Key:
 
@@ -71,14 +101,49 @@ We are signing the message, "12".
 
 ```{r}
 # Define message
-M = 2
+M = 12
 
 # Sign message
-#C = (M^e)%%N # in article, runs
-C = (M^d)%%N # in notes, makes error
+C = exp.module(M,N,d)
+message_check = exp.module(C,N,e) # test message
+```
 
-#(C^d)%%N # in article, runs with errors
-(C^e)%%N # in notes, get 0 with errors
+The encrypted message is`r C`.
+
+### Part 3: Check if the Message is Authentic
+
+#### Message 1: [10,24], signed is [210, 453]
+
+```{r}
+# De-encrypt
+
+# public key = N,e = 161,13
+# message 1 = M? = 10, 24
+# Signed message = C? = 210,453
+
+# signature^ e (mod N) = message
+
+N1 = 161
+e1 = 13
+M1 = 24 #10 #1024
+C1 = 453 #210 #210453
+
+exp.module(C1,N1,e1) # test message1, should equal M1
+
+
+N2 = 161
+e2 = 13
+M2 = 30 #11 #1130
+C2 = 370 #519 #519370
+
+exp.module(C2,N2,e2) # test message1, should equal M2
+
+N3 = 161
+e3 = 13
+M3 = 16 #12 #1216
+C3 = 594 #12 #12594
+
+exp.module(C2,N2,e2) # test message1, should equal M2
 
 
 ```
