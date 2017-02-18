@@ -1,0 +1,85 @@
+---
+title: "Assignment2"
+author: "Nicole Erich and Lindsay Tober"
+date: "February 17, 2017"
+output: html_document
+---
+
+
+### Part 1: Create Keys
+
+$$p = 7, \quad q = 23, \quad e = 13$$
+
+#### a) Creating the Public Key:
+Calculate 
+
+$$
+\begin{aligned}
+N = p*q \\
+N = 7*23 \\
+N = 161
+\end{aligned}
+$$
+
+Choose $e$ (already set to 13) as a relative prime number to:
+$$(p-1)*(q-1) = 132$$
+
+The public key is composed of $N$ and $e$, so it is 16113.
+
+#### b) Creating the Private Key:
+
+Find a value $d$ such that:
+$$
+e*d = 1(mod(p-1)*(q-1))
+$$
+
+```{r}
+p = 7
+q = 23
+e = 13
+
+N = p*q
+d = 1 # initialize, will increment in loop
+
+while(TRUE){
+  left = e*d
+  inside = (p-1)*(q-1)
+  right = 1%%inside # will be 1
+  
+  check_key = left%%inside
+  if(check_key == 1){
+    if(check_key%%1==0){
+      break
+    }
+  }
+  # Make sure no infinate loop
+  if(d >= 70){
+    break
+  }
+  
+  d = d+1
+}
+```
+
+
+The private key that meets the above critera is d = `r d`.
+
+
+### Part 2: Sign the Message
+
+We are signing the message, "12". 
+
+```{r}
+# Define message
+M = 2
+
+# Sign message
+#C = (M^e)%%N # in article, runs
+C = (M^d)%%N # in notes, makes error
+
+#(C^d)%%N # in article, runs with errors
+(C^e)%%N # in notes, get 0 with errors
+
+
+```
+
