@@ -12,6 +12,9 @@ library(digest)
 ```
 
 ```{r expmod_function, echo=FALSE}
+
+# Define functions
+
 exp.module <- function(M, N , d){
 # This function calculates the value of (M^d) mod (N). The function is specifically
 # Designed in order to overcome the difficulty that M^d could be huge and it might 
@@ -38,6 +41,23 @@ exp.module <- function(M, N , d){
   
   c <- chain_mod[ind]
   return(c)
+}
+
+test.authenticity <- function(M,N,e){
+  # Test each for M = C^e(modN)
+  for(i in 1:dim(M)[1]){
+    C_test = M[i,2] # signature
+    M_test = M[i,1] # message
+    
+    check = exp.module(C_test,N,e)
+    print(paste("Does ",M_test,"(message) = ",check,"?"))
+    if(M_test==check){
+      print("    Yes! Message authentic.")
+    }
+    else{
+      print(paste("    No, cannot confirm authenticity."))
+    }
+  }
 }
 ```
 
@@ -89,11 +109,6 @@ while(TRUE){
       break
     }
   }
-  # Make sure no infinite loop
-  if(d >= 70){
-    break
-  }
-  
   d = d+1
 }
 ```
@@ -116,7 +131,7 @@ C = exp.module(M,N,d)
 message_check = exp.module(C,N,e) # test message
 ```
 
-The encrypted message is`r C`.
+The encrypted message is `r C`. Just to check, it is decryped using $C^3(modN)$, which returns the original message, `r message_check`.
 
 </br>
 
@@ -124,43 +139,42 @@ The encrypted message is`r C`.
 
 We are using the public key from Part 1, {161,13}, where $N=161$ and $e=13$.  
 
-#### Message 1: [10,24], signed is [210, 453]
+Test the following messages for authenticity:
 
+Message 1: [10,24], signature is [210, 453] <br>
+Message 2: [11,30], signature is [519,370] <br>
+Message 3: [12,16], signature is [12,594] <br>
+
+Each of these messages is actually two messages that have been encoded, so we will connect message 10 with signature 210, message 24 with signature 453, and so on. Using these pairings, we will use the public key to authenticate the validity of each message/signature.
 
 ```{r part_2}
-# De-encrypt
+# Public Key Already Defined as:
+## N = 161
+## e = 13
 
-# public key = N,e = 161,13
-# message 1 = M? = 10, 24
-# Signed message = C? = 210,453
+# Define a 6x2 matrix of zeros for message and signature
+M=matrix(0,6,2)
+M[1,] = c(10,210)
+M[2,] = c(24,453)
+M[3,] = c(11,519)
+M[4,] = c(30,370)
+M[5,] = c(12,12)
+M[6,] = c(16,594)
 
-# signature^ e (mod N) = message
+# This is not the correct interpretation, according to TA
+## DELETE WHEN CONFIRMED HOW TO INTERPRET
+#M2 = matrix(0,3,2)
+#M2[1,] = c(1024,210453)
+#M2[2,] = c(1130,519370)
+#M2[3,] = c(1216,12594)
 
-N1 = 161
-e1 = 13
-M1 = 24 #10 #1024
-C1 = 453 #210 #210453
-
-exp.module(C1,N1,e1) # test message1, should equal M1
-
-
-N2 = 161
-e2 = 13
-M2 = 30 #11 #1130
-C2 = 370 #519 #519370
-
-exp.module(C2,N2,e2) # test message2, should equal M2
-
-N3 = 161
-e3 = 13
-M3 = 16 #12 #1216
-C3 = 594 #12 #12594
-
-exp.module(C3,N3,e3) # test message3, should equal M3
-
+test.authenticity(M,N,e)
 
 ```
 
+If a message has been signed using the authentic private key, we should be able to authenticate the message using the compnents of the public key, such that the message = $C^e(mod(N))$. By decoding the signature using the public key, the only way to obtain the message back is if it was first encoded using the authentic key. 
+
+The output above shows that none of the 6 messages were authentic, as none are able to retrieve the message back after decoding.
 
 </br>
 
@@ -188,6 +202,6 @@ while(TRUE){
 
 ```
 
-The number $x$ attatched to "2017" such that after the transformation with the Hash function the output starts with at least three 0's (zeros) is $x =$ `r x`.  The hashed string is `r str.Hashed`, which starts with three 0's (zeros).
+The number $x$ attached to "2017" such that after the transformation with the Hash function the output starts with at least three 0's (zeros) is $x =$ `r x`.  The hashed string is `r str.Hashed`, which starts with three 0's (zeros).
 
 </br>
