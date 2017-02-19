@@ -1,11 +1,17 @@
 ---
-title: "Assignment2"
+title: "FinTech Assignment 2"
 author: "Nicole Erich and Lindsay Tober"
-date: "February 17, 2017"
+date: "February 22, 2017"
 output: html_document
 ---
 
-```{r echo=FALSE}
+```{r setup}
+knitr::opts_chunk$set(echo = TRUE)
+library(knitr)
+library(digest)
+```
+
+```{r expmod_function, echo=FALSE}
 exp.module <- function(M, N , d){
 # This function calculates the value of (M^d) mod (N). The function is specifically
 # Designed in order to overcome the difficulty that M^d could be huge and it might 
@@ -34,36 +40,37 @@ exp.module <- function(M, N , d){
   return(c)
 }
 ```
+
 ### Part 1: Create Keys
 
 $$p = 7, \quad q = 23, \quad e = 13$$
 
-#### a) Creating the Public Key:
-Calculate 
+#### Part 1-a) Creating the Public Key:
+Calculate $N$ using $p$ and $q$.
 
 $$
 \begin{aligned}
-N = p*q \\
-N = 7*23 \\
-N = 161
+N & = p*q \\
+N & = 7*23 \\
+N & = 161
 \end{aligned}
 $$
 
 Choose $e$ (already set to 13) as a relative prime number to:
 $$(p-1)*(q-1) = 132$$
 
-The public key is composed of $N$ and $e$, so it is 16113.
+The public key is composed of $N$ and $e$, so it is {161,13}.
 
 
 
-#### b) Creating the Private Key:
+#### Part 1-b) Creating the Private Key:
 
 Find a value $d$ such that:
 $$
 e*d = 1(mod(p-1)*(q-1))
 $$
 
-```{r}
+```{r private_key}
 p = 7
 q = 23
 e = 13
@@ -82,7 +89,7 @@ while(TRUE){
       break
     }
   }
-  # Make sure no infinate loop
+  # Make sure no infinite loop
   if(d >= 70){
     break
   }
@@ -92,8 +99,9 @@ while(TRUE){
 ```
 
 
-The private key that meets the above critera is d = `r d`.
+The private key that meets the above critera is d = `r d`.  This is within the provided range [55,65].
 
+</br>
 
 ### Part 2: Sign the Message
 
@@ -110,11 +118,16 @@ message_check = exp.module(C,N,e) # test message
 
 The encrypted message is`r C`.
 
+</br>
+
 ### Part 3: Check if the Message is Authentic
+
+We are using the public key from Part 1, {161,13}, where $N=161$ and $e=13$.  
 
 #### Message 1: [10,24], signed is [210, 453]
 
-```{r}
+
+```{r part_2}
 # De-encrypt
 
 # public key = N,e = 161,13
@@ -136,15 +149,45 @@ e2 = 13
 M2 = 30 #11 #1130
 C2 = 370 #519 #519370
 
-exp.module(C2,N2,e2) # test message1, should equal M2
+exp.module(C2,N2,e2) # test message2, should equal M2
 
 N3 = 161
 e3 = 13
 M3 = 16 #12 #1216
 C3 = 594 #12 #12594
 
-exp.module(C2,N2,e2) # test message1, should equal M2
+exp.module(C3,N3,e3) # test message3, should equal M3
 
 
 ```
 
+
+</br>
+
+### Part 4: Mining BitCoin  
+Generating proof-of-work for the message "2017" working with Hash function *md5*:
+
+```{r hash}
+str.msg <- c("2017")
+x <- 1000
+
+while(TRUE){
+  str.transformed <- paste(c(str.msg, as.character(x)),collapse="")
+  str.Hashed <- digest(str.transformed,algo = "md5") # Use Hash algorithm to calculate
+  check_hash <- substring(str.Hashed,1,3)
+  if(check_hash == c("000")){ # Check whether the first 3 elements are 000
+      break
+    }
+  # Make sure no infinite loop
+  if(x >= 2000){
+    break
+  }
+  
+  x = x+1
+}
+
+```
+
+The number $x$ attatched to "2017" such that after the transformation with the Hash function the output starts with at least three 0's (zeros) is $x =$ `r x`.  The hashed string is `r str.Hashed`, which starts with three 0's (zeros).
+
+</br>
