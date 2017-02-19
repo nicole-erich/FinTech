@@ -5,17 +5,15 @@ date: "February 22, 2017"
 output: html_document
 ---
 
-```{r setup}
+```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(knitr)
 library(digest)
 ```
 
 ```{r expmod_function, echo=FALSE}
-
-# Define functions
-
-exp.module <- function(M, N , d){
+# Define function
+exp.module <- function(M, N, d){
 # This function calculates the value of (M^d) mod (N). The function is specifically
 # Designed in order to overcome the difficulty that M^d could be huge and it might 
 # be computationally infeasible to compute the module we want.
@@ -41,23 +39,6 @@ exp.module <- function(M, N , d){
   
   c <- chain_mod[ind]
   return(c)
-}
-
-test.authenticity <- function(M,N,e){
-  # Test each for M = C^e(modN)
-  for(i in 1:dim(M)[1]){
-    C_test = M[i,2] # signature
-    M_test = M[i,1] # message
-    
-    check = exp.module(C_test,N,e)
-    print(paste("Does ",M_test,"(message) = ",check,"?"))
-    if(M_test==check){
-      print("    Yes! Message authentic.")
-    }
-    else{
-      print(paste("    No, cannot confirm authenticity."))
-    }
-  }
 }
 ```
 
@@ -122,7 +103,7 @@ The private key that meets the above critera is d = `r d`.  This is within the p
 
 We are signing the message, "12". 
 
-```{r}
+```{r part_2}
 # Define message
 M = 12
 
@@ -137,6 +118,27 @@ The encrypted message is `r C`. Just to check, it is decryped using $C^3(modN)$,
 
 ### Part 3: Check if the Message is Authentic
 
+To check if a message is authentic, we can run it through a function that validates the message against the signed message.
+
+```{r test_authenticity}
+test.authenticity <- function(M,N,e){
+  # Test each for M = C^e(modN)
+  for(i in 1:dim(M)[1]){
+    C_test = M[i,2] # signature
+    M_test = M[i,1] # message
+    
+    check = exp.module(C_test,N,e)
+    print(paste("Does ",M_test,"(message) = ",check,"?"))
+    if(M_test==check){
+      print("    Yes! Message authentic.")
+    }
+    else{
+      print(paste("    No, cannot confirm authenticity."))
+    }
+  }
+}
+```
+
 We are using the public key from Part 1, {161,13}, where $N=161$ and $e=13$.  
 
 Test the following messages for authenticity:
@@ -147,7 +149,7 @@ Message 3: [12,16], signature is [12,594] <br>
 
 Each of these messages is actually two messages that have been encoded, so we will connect message 10 with signature 210, message 24 with signature 453, and so on. Using these pairings, we will use the public key to authenticate the validity of each message/signature.
 
-```{r part_2}
+```{r part_3}
 # Public Key Already Defined as:
 ## N = 161
 ## e = 13
