@@ -2,7 +2,9 @@
 title: "FinTech Assignment 2"
 author: "Nicole Erich and Lindsay Tober"
 date: "February 22, 2017"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -163,13 +165,6 @@ M[4,] = c(30,370)
 M[5,] = c(12,12)
 M[6,] = c(16,594)
 
-# This is not the correct interpretation, according to TA
-## DELETE WHEN CONFIRMED HOW TO INTERPRET
-#M2 = matrix(0,3,2)
-#M2[1,] = c(1024,210453)
-#M2[2,] = c(1130,519370)
-#M2[3,] = c(1216,12594)
-
 test.authenticity(M,N,e)
 
 ```
@@ -195,7 +190,7 @@ while(TRUE){
       break
     }
   # Make sure no infinite loop
-  if(x >= 2000){
+  if(x >= 5000){
     break
   }
   
